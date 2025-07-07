@@ -1,63 +1,249 @@
-CREATE OR REPLACE PROCEDURE AMD3PRO15 AS 
-cursor c_mgr is select employee_id, first_name, job_id, department_id 
-                    from employees where employee_id in (select distinct manager_id from employees );
-r_mgr c_mgr%rowtype;
-v_row number:=0;
+create or replace procedure adm3pro1 as
+begin
+dbms_output.put_line('PLSQL is procedural Language for SQL');
+dbms_output.put_line('PLSQL used for bulk data transaction ');
+end;
+----------------------------------------
+create or replace PROCEDURE ADM3PRO2 AS 
 BEGIN
-  open c_mgr;
-    loop
-        fetch c_mgr into r_mgr;
-        exit when c_mgr%notfound;
-            --if not(substr(r_mgr.job_id,3) in  ('PRES','VP')) then
-            if r_mgr.job_id not like '%PRES' and r_mgr.job_id not like '%VP'  then
-                insert into empmgr values (r_mgr.employee_id,r_mgr.first_name,r_mgr.job_id,r_mgr.department_id);
-                v_row:=v_row+1;
-            end if;
-    end loop;  
-    --v_row:=c_mgr%rowcount;
-    dbms_output.put_line('Number record inserted is '||v_row);
-  close c_mgr;
-  dbms_output.put_line('Procedure complete the task....');
-END AMD3PRO15;
-
-
---------------------------
-CREATE OR REPLACE PROCEDURE ADM3PRO16 (  V_DEPT_ID IN NUMBER , V_PER IN NUMBER ) AS 
-v_row number;
+  dbms_output.put_line('Procedure are stored procudure and Anyomous procudure');
+  dbms_output.put_line('Welcome to PL/SQL');
+  dbms_output.put_line('PLSQL is extension for SQL');
+END ADM3PRO2;
+-----------------------------------------
+create or replace PROCEDURE ADM3PRO3 AS 
+db varchar2(20);
+dbed varchar2(20);
+dbver number :=11;
+database1 varchar2(40);
 BEGIN
-    update emp25 set salary= salary*v_per+salary where deptid=v_dept_id;
-    
-    if sql%found then
-        v_row:=sql%rowcount;
-        dbms_output.put_line('Number of record update for departmant_id '||v_dept_id ||' is '||v_row);
-    elsif sql%notfound then
-        dbms_output.put_line('No such '||v_dept_id||' department_id ');
-    end if;    
-    
-END ADM3PRO16;
-	
------------------------------
-CREATE OR REPLACE PROCEDURE ADM3PRO17 AS 
-cursor c_mgr is select employee_id, first_name, job_id, department_id 
-                    from employees where employee_id in (select distinct manager_id from employees );
-r_mgr c_mgr%rowtype;
-v_row number:=0;
-BEGIN
+db := 'Orcale';
+dbed :='Express Edition';
+database1:= db||' '||dbed||' '||dbver||'g';
+dbms_output.put_line('Database Name :'||database1);
   
-    for r_mgr in c_mgr loop
-            if r_mgr.job_id not like '%PRES' and r_mgr.job_id not like '%VP'  then
-                insert into empmgr values (r_mgr.employee_id,r_mgr.first_name,r_mgr.job_id,r_mgr.department_id);
-                v_row:=v_row+1;
-            end if;
-    end loop;
-  dbms_output.put_line('Procedure complete the task....');
-END ADM3PRO17;
+END ADM3PRO3;
+----------------------------------------
+create or replace PROCEDURE ADM3PRG4 AS 
 
----------------------------------------
-CREATE OR REPLACE FUNCTION EMPEXP (  V_DOJ IN DATE ) RETURN VARCHAR2 AS 
-v_empexp varchar2(20);
 BEGIN
- v_empexp:= concat(round((sysdate-v_doj)/365,0),' yrs');
- return v_empexp;
-END EMPEXP;
---------------------------
+insert into emp values(501,'Rosy',sysdate,'SQL_Dev',12500,60);
+insert into emp values(502,'Thomos',sysdate,'SrSQL_Dev',14500,60);
+delete from emp where empid in(200,201);
+update emp set salary=salary+555 where job_id='IT_PROG';
+dbms_output.put_line('Procedure completed bulk data transaction');
+
+END ADM3PRG4;
+----------------------------
+create or replace PROCEDURE ADM3PRO5 AS 
+v_empname varchar2(30);
+v_job_id varchar2(30);
+v_sal number;
+v_newsal number;
+BEGIN
+  select  empname, job_id,salary into  v_empname, v_job_id, v_sal
+        from emp where empid=135;
+    if v_job_id like '%MAN' then
+        dbms_output.put_line('Empname :'||v_empname);
+        dbms_output.put_line('Job_ID :'||v_job_id);
+        dbms_output.put_line('Hike precent is 20%');
+        dbms_output.put_line('Old Salary :'||v_sal);
+        v_newsal:=v_sal*.20+v_sal;
+        dbms_output.put_line('New Salary :'||v_newsal);
+    else
+        dbms_output.put_line('Empname :'||v_empname);
+        dbms_output.put_line('Job_ID :'||v_job_id);
+        dbms_output.put_line('Hike precent is 15%');
+        dbms_output.put_line('Old Salary :'||v_sal);
+        v_newsal:=v_sal*.15+v_sal;
+        dbms_output.put_line('New Salary :'||v_newsal);
+    end if;    
+dbms_output.put_line('Procedure completed............');
+END ADM3PRO5;
+---------------------------------------
+create or replace PROCEDURE ADM3PRO6 (  V_EMPID IN NUMBER ) AS 
+v_empname varchar2(30);
+v_job_id varchar2(30);
+v_sal number;
+v_newsal number;
+BEGIN
+  select  empname, job_id,salary into  v_empname, v_job_id, v_sal
+        from emp where empid=v_empid;
+    if v_job_id like '%MAN' then
+        dbms_output.put_line('Empname :'||v_empname);
+        dbms_output.put_line('Job_ID :'||v_job_id);
+        dbms_output.put_line('Hike precent is 20%');
+        dbms_output.put_line('Old Salary :'||v_sal);
+        v_newsal:=v_sal*.20+v_sal;
+        dbms_output.put_line('New Salary :'||v_newsal);
+    else
+        dbms_output.put_line('Empname :'||v_empname);
+        dbms_output.put_line('Job_ID :'||v_job_id);
+        dbms_output.put_line('Hike precent is 15%');
+        dbms_output.put_line('Old Salary :'||v_sal);
+        v_newsal:=v_sal*.15+v_sal;
+        dbms_output.put_line('New Salary :'||v_newsal);
+    end if;    
+dbms_output.put_line('Procedure completed............');
+END ADM3PRO6;
+
+---------------------------------------------
+create or replace PROCEDURE ADM3PRO7 (  V_EMPID IN NUMBER , V_MAN IN NUMBER , V_NONMAN IN NUMBER ) AS 
+v_empname varchar2(30);
+v_job_id varchar2(30);
+v_sal number;
+v_newsal number;
+BEGIN
+  select  empname, job_id,salary into  v_empname, v_job_id, v_sal
+        from emp where empid=v_empid;
+    IF v_job_id like '%MAN' then
+        dbms_output.put_line('Empname :'||v_empname);
+        dbms_output.put_line('Job_ID :'||v_job_id);
+        dbms_output.put_line('Hike precent is '||v_man);
+        dbms_output.put_line('Old Salary :'||v_sal);
+        v_newsal:=v_sal*v_man+v_sal;
+        dbms_output.put_line('New Salary :'||v_newsal);
+    else
+        dbms_output.put_line('Empname :'||v_empname);
+        dbms_output.put_line('Job_ID :'||v_job_id);
+        dbms_output.put_line('Hike precent is '||v_nonman);
+        dbms_output.put_line('Old Salary :'||v_sal);
+        v_newsal:=v_sal*v_nonman+v_sal;
+        dbms_output.put_line('New Salary :'||v_newsal);
+    end if;    
+dbms_output.put_line('Procedure completed............');
+END ADM3PRO7;
+-------------------------------------------------------------
+create or replace PROCEDURE ADM3PRO8 AS 
+v_var1 number:=1;
+BEGIN
+-- basic lloop statement
+  loop
+    dbms_output.put_line('Loop cycle is '||v_var1);
+    v_var1:=v_var1+1;
+    /*if v_var1=100 then
+        exit;
+    end if;*/
+    exit when v_var1=15;
+  end loop;
+  
+  for x in 100..110 loop
+     dbms_output.put_line('FOR Loop cycle is '||x);
+  end loop;
+  
+END ADM3PRO8;
+-------------------------------------------------
+create or replace PROCEDURE ADM3PRO9(v_empid in number) AS 
+v_empname emp.empname%type;
+v_job_id varchar2(30);
+v_sal number;
+v_newsal number;
+BEGIN
+  select  empname, job_id,salary into  v_empname, v_job_id, v_sal
+        from emp where empid=v_empid;
+  
+        dbms_output.put_line('Empname :'||v_empname);
+        dbms_output.put_line('Job_ID :'||v_job_id);
+        dbms_output.put_line('Hike precent is 20%');
+        dbms_output.put_line('Old Salary :'||v_sal);
+        v_newsal:=v_sal*.20+v_sal;
+        dbms_output.put_line('New Salary :'||v_newsal);
+END ADM3PRO9;
+-----------------------------------------------------
+create or replace PROCEDURE ADM3PRO10 (  V_DEPTID IN NUMBER ) AS 
+r_dept departments%rowtype;
+r_loc locations%rowtype;
+BEGIN
+  select * into r_dept from departments where department_id=v_deptid;
+  
+  select * into r_loc from locations where location_id=r_dept.location_id;
+  
+  dbms_output.put_line('Department Name :'||r_dept.department_name);
+  dbms_output.put_line('Manager_ID :'||r_dept.manager_id);
+  dbms_output.put_line('City :'||r_loc.city);
+  dbms_output.put_line('Country ID:'||r_loc.country_id);
+  
+END ADM3PRO10;
+----------------------------------------------------------
+
+create or replace PROCEDURE ADM3PRO11 (  V_deptid IN NUMBER ) AS 
+r_dept departments%rowtype;
+r_loc locations%rowtype;
+BEGIN
+  select * into r_dept from departments;-- where department_id=v_deptid;
+  select * into r_loc from locations where location_id=r_dept.location_id;
+  
+  dbms_output.put_line('Department Name :'||r_dept.department_name);
+  dbms_output.put_line('Manager_ID :'||r_dept.manager_id);
+  dbms_output.put_line('City :'||r_loc.city);
+  dbms_output.put_line('Country ID:'||r_loc.country_id);
+exception
+  when no_data_found then
+    dbms_output.put_line('No such departments found...');
+  when TOO_MANY_ROWS then
+    dbms_output.put_line('Select statement fetch many rows');
+   when others then
+    dbms_output.put_line('Some error occured.....');
+END ADM3PRO11;
+-----------------------------------------------------------
+create or replace PROCEDURE ADM3PRO12 (  V_EMPID IN NUMBER) AS 
+v_empname varchar2(30);
+v_job_id varchar2(30);
+v_sal number;
+v_newsal number;
+e_emperr exception;
+BEGIN
+if v_empid between 100 and 199 then
+        select  empname, job_id,salary into  v_empname, v_job_id, v_sal
+        from emp ;---where empid=v_empid;
+else
+    raise e_emperr;
+end if;
+    
+        dbms_output.put_line('Empname :'||v_empname);
+        dbms_output.put_line('Job_ID :'||v_job_id);
+        dbms_output.put_line('Hike precent is 20%');
+        dbms_output.put_line('Old Salary :'||v_sal);
+        v_newsal:=v_sal*.20+v_sal;
+        dbms_output.put_line('New Salary :'||v_newsal);
+exception
+    when e_emperr  then
+        dbms_output.put_line('Employee Id is not in Range..');
+    when others then
+        dbms_output.put_line('Some error occured ....');
+    
+END ADM3PRO12;
+-------------------------------------------
+create or replace PROCEDURE ADM3PRO13 AS 
+r_emp emp%rowtype;
+BEGIN
+ for v_emp in 100..502 loop
+        select * into r_emp from emp where empid=v_emp;
+        dbms_output.put_line('EMPID:'||r_emp.empid);
+        dbms_output.put_line('Empname :'||r_emp.empname);
+        dbms_output.put_line('Job_ID :'||r_emp.job_id);       
+        dbms_output.put_line(' Salary :'||r_emp.salary);
+        dbms_output.put_line('-----------------------------------');
+    
+ end loop;
+END ADM3PRO13;
+
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXX*/
+---------------------------------------------------------------
+create or replace PROCEDURE ADM3PRO14 AS 
+cursor c_emp is select * from emp;
+r_emp c_emp%rowtype;
+v_newsal number;
+BEGIN
+open c_emp;
+    loop
+        fetch c_emp into r_emp;
+        exit when c_emp%notfound;
+            v_newsal:= r_emp.salary+444;
+            insert into emp25 values(r_emp.empid,r_emp.empname,r_emp.doj,r_emp.job_id,v_newsal,r_emp.deptid);   
+    end loop;
+close c_emp;  
+
+dbms_output.put_line('Procedure completed bulk data tranasction');
+END ADM3PRO14;
+--------------------------------------------------------------

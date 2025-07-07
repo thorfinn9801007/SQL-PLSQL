@@ -1,0 +1,30 @@
+--------------------------------------SQL----------------------------------------------------
+1) Write an SQL query to display the salesmen along with their salesman_id and the total number of orders they made in the year 2017. The total number of orders should be displayed as No_Of_Orders. The results should be sorted in descending order based on No_Of_Orders.
+	
+
+2) Write an SQL query to display the orders with the following details: Order_id, order_date, customer_id, and salesman_id. The query should include orders that were placed from January 2, 2017, to the next 100 days and are currently in a pending status.
+
+	
+3) Write an SQL query to display the details of orders that have been canceled. The query should include the order_id, customer_id, status, and order_date for each order. Additionally, the query should only include orders from customers who have had more than one order canceled.
+
+	
+4) Write an SQL query to display the details of products that belong to the 'Mother Board' category and have been ordered in quantities greater than 140. The query should include the product_id, product_name, standard_cost, and the quantity ordered. The results should be sorted in descending order based on the quantity ordered.
+	
+--------------------------------------PLSQL----------------------------------------------------
+
+1) Develop a PL/SQL procedure to identify products  where ordered for more than once and insert this records into product_info table with product_id,
+Number of Orders  and sum of that product item. The procedure should also print the number of record as "Number of record insert into product_info tables is  12"
+If no products meet the criteria, handle the user define exception "err_no_product" by printing a message printing a message indicating that no products
+had orders more than onces  as "No Product ordered more than once".
+Write the procedure with named product_order using the basic loop with cursor.
+Note: Create the table "Product_info" with Column as 
+	product_id(number): ProductId 
+	No_Of_Ordered(number): Number of ordered made by each product
+	Sum_of_Cost (number): sum of unit_price * quantity by each product
+
+2) Develop a PL/SQL function for the orders table that accepts a salesman_id as input and returns the full name of the salesman in the format "First_Name Last_Name". If the salesman_id is NULL, the function should handle this exception and return the string "Walk-in Customers".
+
+
+
+	
+

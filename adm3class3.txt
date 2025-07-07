@@ -1,0 +1,248 @@
+create or replace PROCEDURE ADM3PRO18 (  V_DEPTID IN NUMBER) AS 
+cursor c_emp is select employee_id,first_name,salary, commission_pct,totsal(employee_id)as totsal
+    from employees where department_id=v_deptid;
+r_emp c_emp%rowtype;
+BEGIN
+  
+  dbms_output.put_line('------------------------------------------------------------');
+  dbms_output.put_line('Empid   Empname     Salary   Comm   Totsal');
+  dbms_output.put_line('------------------------------------------------------------');
+  for r_emp in c_emp loop
+    dbms_output.put_line(r_emp.employee_id||'   '||r_emp.first_name||'  '||r_emp.salary||'  '||r_emp.commission_pct
+            ||'   '||r_emp.totsal);
+    end loop;
+            
+END ADM3PRO18;
+--------------------------------------------
+
+create or replace PROCEDURE ADM3PRO19 AS 
+V_VAR5 NUMBER:=100;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Main Module Value of var1 is '||v_var5);
+    declare
+    V_VAR1 NUMBER:=55;
+    begin
+        DBMS_OUTPUT.PUT_LINE('Inner Module 1- Value of var1 is '||v_var5);
+    end;
+
+
+     declare
+    V_VAR1 NUMBER:=77;
+    begin
+    DBMS_OUTPUT.PUT_LINE('Inner Module 2- Value of var1 is '||v_var1);
+    end;
+
+END ADM3PRO19;
+
+----------------------------------------------
+create or replace FUNCTION DEPTCITY (  V_DEPTID IN NUMBER ) RETURN VARCHAR2 AS 
+v_deptname departments.department_name%type;
+v_locid number;
+v_city locations.city%type;
+v_deptcity varchar2(50);
+
+BEGIN
+  select department_name , location_id into v_deptname,v_locid 
+        from departments where department_id =v_deptid;
+   select city into v_city from locations where location_id =v_locid;
+   v_deptcity := v_deptname||'-'||v_city;
+   return v_deptcity;
+END DEPTCITY;
+
+--------------------------------------------------
+create or replace FUNCTION TAKESAL (  V_SAL IN NUMBER , V_COM IN NUMBER ) RETURN NUMBER AS 
+v_takesal number;
+BEGIN
+    v_takesal:= nvl(v_sal*v_com+v_sal,v_sal);
+    case  when v_takesal between 20000 and 50000 then 
+            v_takesal:= v_takesal-(v_takesal*.15);
+           when v_takesal between 15000 and 19999 then 
+                v_takesal:= v_takesal-(v_takesal*.11);
+            when v_takesal between 10000 and 14999 then
+                 v_takesal:= v_takesal-(v_takesal*.07);
+            when v_takesal between 7000 and 9999 then
+                v_takesal:= v_takesal-(v_takesal*.05);
+            when v_takesal between 4000 and 6999 then
+                v_takesal:= v_takesal-(v_takesal*.03);
+            else
+                 v_takesal:= v_takesal;
+            end case;
+        return v_takesal;
+            
+END TAKESAL;
+------------------------------------------------------------
+
+create or replace TRIGGER ADM3TRI1 BEFORE DELETE ON EMP for each row
+declare
+BEGIN
+  insert into xemp values(:old.empid,:old.empname,:old.doj,:old.job_id,:old.salary,:old.deptid);
+END;
+````````````````````````````
+sqL>select * from emp;
+sql>create table xemp as (select * from emp where empid=1);
+sqL>select * from xemp;
+sqL>insert into xemp values(185,'Alexis','20-02-05','SH_CLERK',4100,50);
+sql>insert into xemp values(190,'Timothy','11-07-06','SH_CLERK',2900,50);
+sqL>delete from emp where empid in(185,190);
+
+Trigger setting : emp       event :delete
+Opposite action: delete record need to insert into xemp
+----------------------
+Automate-Trigger :adm3tri1
+
+select * from emp;
+select * from xemp;
+delete from emp where empid in(199,203,501);
+
+
+
+delete cache :old           insert cache :new   
+
+-----------------------------------------------------------
+create or replace TRIGGER ADM3TRI2 BEFORE INSERT ON EMP for each row
+declare
+v_bacissal number:= :new.salary*.50;
+v_hra number := :new.salary*.20;
+v_da number := :new.salary*.10;
+v_med number := :new.salary*.10;
+v_others number := :new.salary*.10;
+BEGIN
+  insert into empsal values(:new.empid,v_bacissal,v_hra,v_da,v_med,v_others);
+END;
+
+
+```````````````````
+SQL>select * from emp;
+
+SQ>create table empsal (empid number, basicsal number, hra number, da number, med number, otherall number);
+
+trigger setting :emp     Event :insert
+Action: new record of emp need insert into empsal
+
+
+sql>insert into emp values(505,'Glenmark',sysdate,'SQL_Dev', 10000, 50);
+sql>select * from empsal;
+
+
+
+
+`````````````
+----------------------------------------------------------------
+
+create or replace TRIGGER ADM3TRI3 BEFORE UPDATE ON EMP for each row
+declare
+BEGIN
+  insert into emphis values(:new.empid,:new.doj,:new.job_id,:new.salary,:new.deptid);
+END;
+
+
+
+SQL>select * from emp;
+sqL>create table emphis as(select empid,doj,job_id,salary,deptid from emp where empid=1);
+sqL>select * from emphis;
+
+trigger setting :emp        Event:update
+Action : old record need to insert into emphis
+
+sq>update emp set salary=8800, job_id='Sr.IT_PROG' where empid=107;
+
+sql>select * from emphis;
+
+sqL>select * from emp;
+sqL>update emp set salary=12300, job_id='PU_MAN' where empid=119;
+
+sql>select * from emphis;
+
+---------------------------------------------------------------
+create or replace TRIGGER ADM3TRI4 BEFORE INSERT ON ORDERS for each row
+declare
+v_sqty number;
+v_pro varchar2(30);
+BEGIN
+    update products set stock_in_qty=stock_in_qty-:new.qty  where productid = :new.proid;
+    select productname,stock_in_qty into v_pro, v_sqty from products where productid =:new.proid;
+    if v_sqty <=10 then
+        dbms_output.put_line('Product is running out of stock, Place the Order for '||v_pro);
+    end if;
+END;
+
+`````````````````````
+reate table products (productID number, productname varchar2(20), stock_in_qty number,price number);
+insert into products values(100,'Mouse',50,450);
+insert into products values(101,'Keyboard',150,500);
+insert into products values(102,'Projector',14,35000);
+insert into products values(103,'Monitor',35,7500);
+
+create table orders (OrderID number, orderdate date,proid number,qty number);
+
+select * from products;
+select * from orders;      :new.orderid, :new.orderdate :new.proid, :new.qty
+insert into orders values(1001,sysdate,101, 50);
+
+trigger setting : order    event :insert
+action : update record in product
+`````````````````````````````````
+
+-------------------------------------------------------------------
+create or replace TRIGGER ADM3TRI5 BEFORE DELETE OR INSERT OR UPDATE ON EMP for each row
+declare
+v_user varchar2(20);
+BEGIN
+  select user into v_user from dual;
+  if inserting then
+        insert into emplog values(:new.empid,sysdate,v_user,'Insert');
+  elsif deleting then
+         insert into emplog values(:old.empid,sysdate,v_user,'delete');
+   elsif updating then
+         insert into emplog values(:old.empid,sysdate,v_user,'update');
+    end if;
+ 
+END;
+
+``````````````
+create table emplog (empid number, accessdate date, accessuser varchar2(20), action varchar2(20));
+
+trigger: emp    event:insert,update, delete
+action : insert the log record into emplog
+
+select * from emplog;
+
+select user from dual;
+
+
+delete from emp where empid in(104,105);
+update emp set salary=18900 where empid=106
+insert into emp values(555,'Elvis', sysdate,'DBA',17000,50);
+select * from emp;
+select * from emplog;
+
+
+
+
+-------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------
+
+
+
+
+
+
+---------------------------------------------
+c
+--------------------------------------------
+----------------------
+
+
+
