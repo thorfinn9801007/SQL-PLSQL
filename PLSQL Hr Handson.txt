@@ -1,0 +1,424 @@
+1)1.Create a plsql procedure, that copy the all record of department_id, department_name and
+location_id of all departments that located in country_id of "US" to a table called "Department_US" using the
+cursor with basic loop.
+Display how many rows were copied , if not then display the message "NO RECORDS FOUND".
+
+Note :create a table Department_US with
+structure ((HR SCHEME)
+Field Name Datatype
+----------------- -------------
+Department_Id number
+Department_name varchar2(40)
+Location_id number
+
+ANSWER::==>
+CREATE OR REPLACE PROCEDURE ADM3PROAS01 AS 
+cursor c is select department_id,department_name,location_id from departments 
+where location_id in (select location_id from locations where country_id ='US');
+r_rec c%rowtype;
+v_rowcount number:=0;
+BEGIN  
+    open c;
+    loop
+        fetch c into r_rec;
+        exit when c%notfound;
+            insert into Department_US values(r_rec.department_id,r_rec.department_name,r_rec.location_id);
+            v_rowcount := v_rowcount+1;
+    end loop;
+    close c;
+    dbms_output.put_line('no of records inserted '||v_rowcount);
+     dbms_output.put_line('---------------procedure completed------------');
+END ADM3PROAS01;
+--------------------------------------------------------------------------
+
+2. Create a procedure named as "deleteemp( depit in number) " that delete rows from the employees table. It should accept 1 parameter, departmentId; only delete the employee records belonging to that departmentid. 
+Display how many employees were deleted else raise"DeptIDNotFound"  and print the message 'No Records Found' (HR SCHEME)
+
+ANSWER::=> 
+CREATE OR REPLACE PROCEDURE ADM3DELETEEMP 
+(
+  DEPT_ID IN NUMBER 
+) AS 
+
+cursor c is select employee_id,first_name from empdelete1 where department_id = DEPT_ID;
+r_rec c%rowtype;
+v_rowcount number:=0;
+BEGIN
+  open c;
+  loop
+    fetch c into r_rec;
+    exit when c%notfound;
+        delete from empdelete1 where employee_id = r_rec.employee_id;
+        v_rowcount:=v_rowcount+1;
+    end loop;
+    close c;
+    
+    if v_rowcount>0 then
+        dbms_output.put_line('no fo record deleted'||v_rowcount);
+    else 
+        dbms_output.put_line('no records found');
+    end if;
+END ADM3DELETEEMP;
+----------------------------------------------------------------
+
+3. create a proedurce that gives all employees in IT job_id, with  22 % pay increase in there salary 
+     Display a message how many Employees were give salary hike the increase. If no employee found then print the message 'No Records Found' ((HR SCHEME))
+	
+ANSWER::=>
+CREATE OR REPLACE PROCEDURE ADM3PROAS02 AS
+  r_rec employees%ROWTYPE;
+  rowcount number:=0;
+BEGIN
+  FOR r_rec IN (SELECT * FROM employees WHERE job_id LIKE 'IT%')
+  LOOP
+    dbms_output.put_line(r_rec.first_name);
+    dbms_output.put_line(r_rec.job_id);
+    r_rec.salary := r_rec.salary + r_rec.salary*0.22;
+    dbms_output.put_line(r_rec.salary);
+    rowcount:=rowcount+1;
+  END LOOP;
+  
+    dbms_output.put_line('number of employees with salary hike is:'||rowcount);
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    dbms_output.put_line('No IT professionals found');
+END ADM3PROAS02;
+
+
+-------------------------------------------------------------------------
+4. Write a procedure to perform salary hike operation that only permits a hike , if there is salary is less than  8000, then update the  salary  with employee table and print the message 'Salary Hike is successful' else print 'Salary is greater than 8000'.((HR SCHEME))  procedure named as salhike(hike  as number)
+
+ANSWER::=>
+
+CREATE OR REPLACE PROCEDURE SALHIKE (
+    HIKE_IN_PERC IN NUMBER
+) AS
+    CURSOR c IS SELECT employeeid, firstname, salary FROM emps;
+    r_rec c%ROWTYPE;
+BEGIN
+    OPEN c;
+    LOOP
+        FETCH c INTO r_rec;
+        EXIT WHEN c%NOTFOUND;
+
+        IF r_rec.salary < 80000 THEN
+            r_rec.salary := r_rec.salary + r_rec.salary * HIKE_IN_PERC;
+            UPDATE emps
+            SET salary = r_rec.salary
+            WHERE employeeid = r_rec.employeeid; -- Corrected: Added WHERE clause
+        END IF;
+           dbms_output.put_line(r_rec.salary);
+    END LOOP;
+    CLOSE c;
+    
+ 
+    dbms_output.put_line('Salary Hike was Succesful');
+END SALHIKE;
+
+------------------------------------------------------------------------
+
+5.Write procedure to display the number of department to the location_id as 'Number of Department in location id[50] is [25]' by pass the argument to procedure as location_id with named as deptcount(loc number).
+
+ANSWER::=>
+
+CREATE OR REPLACE PROCEDURE DEPTCOUNT 
+(
+  LOC_ID IN NUMBER 
+) AS 
+v_dept_count number;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_dept_count
+    FROM departments
+    WHERE location_id = LOC_ID;
+
+    DBMS_OUTPUT.PUT_LINE('Number of Department in location id[' || LOC_ID || '] is [' || v_dept_count || ']');
+END deptcount;
+
+
+
+
+----------------------------------------------------------------------
+6.Write the procedure to copy the manager record from employees table and move records to managers table. Procedure is named with mgremp and display the "Number of record is copied is" if not then "No record insert into manager" using the basic loop with cursor.
+
+Note: create a table mgremp with stucture
+	empid		number,
+	first_name	varchar2(30);
+	job_id		varchar2(30);
+	department_id	number..
+
+ANSWER::=>
+
+CREATE OR REPLACE PROCEDURE MGREMP01 AS
+cursor c is select employee_id,first_name,job_id,department_id from employees where employee_id in (select manager_id from employees);
+r_rec c%rowtype;
+v_rowcount number:=0;
+BEGIN  
+    open c;
+    loop
+        fetch c into r_rec;
+        exit when c%notfound;
+            insert into mgremp values(r_rec.employee_id,r_rec.first_name,r_rec.job_id,r_rec.department_id);
+            v_rowcount := v_rowcount+1;
+    end loop;
+    close c;
+    dbms_output.put_line('no of records inserted '||v_rowcount);
+     dbms_output.put_line('---------------procedure completed------------');
+END MGREMP01;
+	
+
+
+
+---------------
+  FUNCTIONS:
+---------------
+
+1. Write a PLSQL user defined function as empname to concatenate firstname and lastname of an employee. Pass employee id as an input to the functions
+empname  Output of function returns :-  Mr/Mrs. Sam Peter
+
+ANSWER::=>
+
+CREATE OR REPLACE FUNCTION EMPNAME 
+(
+  EMP_ID IN NUMBER 
+) RETURN VARCHAR2 AS
+r_rec employees%rowtype;
+emp_name varchar2(100);
+BEGIN
+    
+    select * into r_rec from employees where employee_id = EMP_ID;
+    emp_name := 'Mr/Mrs.'||' '|| r_rec.first_name || ' '||r_rec.last_name;
+  RETURN emp_name;
+END EMPNAME;
+
+
+select employee_id,first_name,last_name,EMPNAME(employee_id) as Full_Name from employees;
+
+
+
+
+----------------------------------------------------------------------
+2. Write user define function as deptloc to return departmentname-city-Country_name example "IT-NewYork-USA".Function is passed with department_id as an input
+
+ANSWER::=>
+
+CREATE OR REPLACE FUNCTION DEPTLOC 
+(
+  DEPT_ID IN NUMBER 
+) RETURN VARCHAR2 AS 
+  v_dept_name    VARCHAR2(100);
+  v_city         VARCHAR2(100);
+  v_country_name VARCHAR2(100);
+  v_result varchar2(100);
+BEGIN
+    select 
+    d.department_name,l.city,l.country_id into v_dept_name,v_city,v_country_name
+    from departments d 
+    join locations l on d.location_id = l.location_id
+    where d.department_id = DEPT_ID;
+    v_result := v_dept_name || '-' || v_city || '-' || v_country_name;
+  RETURN v_result;
+END DEPTLOC;
+
+select department_id, DEPTLOC(department_id) from departments;
+
+
+
+
+-------------------------------------------------------------------------
+3. Write function as empexp( empid number) which returns the experence of the employee, When function is passed as input of employee_id return as experence of that employee.
+
+ANSWER::=>
+
+CREATE OR REPLACE FUNCTION EMPEXP01 (
+  EMP_ID IN NUMBER
+) RETURN VARCHAR2 AS
+  v_date DATE;
+  v_exp  VARCHAR2(100);
+BEGIN
+  SELECT hire_date
+  INTO v_date
+  FROM employees
+  WHERE employee_id = EMP_ID;
+  v_exp := FLOOR(MONTHS_BETWEEN(sysdate, v_date) / 12) || ' Years';
+  RETURN v_exp;
+END EMPEXP01;
+
+
+
+select employee_id,first_name,last_name,EMPEXP01(employee_id) as Experaince from employees;
+
+
+
+---------------------------------------------------------------------------------
+4.Write a function to calculate the total salary by salary commission and  deduction of professional tax of 6% from total salary if total salary is greater than or equal to $15000 and less than 15000 is 2.5%. function named as salcal with two parameter of salary and commission.
+
+ANSWER ::=>
+
+CREATE OR REPLACE FUNCTION salcal (
+  p_salary    IN NUMBER,
+  p_commission IN NUMBER
+) RETURN NUMBER AS
+  v_total_salary NUMBER;
+  v_tax_rate     NUMBER;
+  v_tax_amount   NUMBER;
+BEGIN
+  v_total_salary := p_salary + nvl(p_salary*p_commission,0);
+
+  IF v_total_salary >= 15000 THEN
+    v_tax_rate := 0.06; 
+  ELSE
+    v_tax_rate := 0.025; 
+  END IF;
+  v_tax_amount := v_total_salary * v_tax_rate;
+  v_total_salary := v_total_salary - v_tax_amount;
+  RETURN v_total_salary;
+
+END salcal;
+
+
+select employee_id,first_name,last_name,salcal(salary,commission_pct) as total_salary from employees;
+
+......................................................................
+
+
+--------------
+	TRIGGERS:
+--------------
+
+1. Write the trigger to the employee  table when the deleted event happened. 
+so that when an employee record is deleted the record details need to be inserted into  an table called X_Emp along  with deleted date
+
+Note : Assume X_emp  table is existing  with 
+
+Field Name      datatype
+--------------------------------VC
+Employee_ID	number
+First_name	Varchar2(30)
+department_id	number
+deleted_date	date
+
+
+ANSWER ::=>
+
+CREATE OR REPLACE TRIGGER DELEMP
+BEFORE DELETE ON emps26
+FOR EACH ROW
+DECLARE
+  v_emp_id NUMBER := :OLD.employee_id;
+  v_firstname VARCHAR2(50) := :OLD.first_name;
+  v_deptid NUMBER := :OLD.department_id;
+BEGIN
+  INSERT INTO x_emp 
+  VALUES (v_emp_id, v_firstname, v_deptid, SYSDATE);
+END;
+
+-------------------------------------------------------------------------------
+
+2. Create a tigger to display the message "Place a order for the Product <product_name>",
+ when ever a item quantity reached 10 and below in product table when  updating or inserting an item in order table.
+Products  table 
+-----------------------
+Pid	ProductName	Qty
+100	Mouse		50
+101	Keyboard	32
+102	Pendrive	5
+103	RAM		12
+Order Table
+------------------
+Oid 	Pid  	 qty
+1000	100	45
+1001	101	2
+1003	102	25
+
+Output:
+"Place a Order for the product Mouse
+
+
+ANSWER::=>
+
+
+CREATE OR REPLACE TRIGGER ADM3TRIG3 BEFORE INSERT ON ORDERS for each row
+declare
+v_name varchar2(30);
+v_qty number;
+BEGIN
+  update PRODUCTS set qty = qty - :new.o_qty where PID = :new.pid;
+  select productname,qty into v_name, v_qty from PRODUCTS where PID = :new.pid;
+  if v_qty < 10 then 
+    dbms_output.put_line('Prodcut is running shortage please place the orders !!!'||v_name);
+ end if;
+END;
+
+
+select * from PRODUCTS;
+select * from ORDERS;
+
+CREATE TABLE ORDERS (
+Oid number,
+Pid number,
+o_qty number
+)
+
+set serveroutput on;
+insert into ORDERS values (1002,103,4);
+
+
+
+
+
+------------------------------------------------------------------------------------------
+3.) Create  trigger on the employee table when the update is happened to employee's salary field. 
+wirte the action to trigger to  Insert the employee's old salary in 	empoldsal table
+
+  empoldsal  table
+----------------------------
+Field Name 	datatype
+empid		number
+firstname	varchar2(30)
+Oldsalary	number
+
+
+
+ANSWER ::=>
+
+CREATE OR REPLACE TRIGGER ADM3TRIG2 BEFORE UPDATE ON EMPS  for each row
+declare
+BEGIN
+  insert into empoldsal values (:old.employeeid,:old.firstname,:old.salary);
+END;
+
+select * from empoldsal;
+select * from emps;
+
+update emps set salary=80800 where employeeid = 6;
+
+
+------------------------------------------------------------------------------------------
+
+4.Write trigger on emp table for the event of update to column of salary.
+ when the salary is update to emp table stored old salary into empoldsal table. Display 'Record is inserted into empoldsal'.
+
+
+ANSWER ::=>
+
+CREATE OR REPLACE TRIGGER ADM3TRIG2
+AFTER  UPDATE ON EMPS
+FOR EACH ROW
+DECLARE
+BEGIN
+  insert into empoldsal  values (:old.employeeid, :old.firstname, :old.salary);
+  DBMS_OUTPUT.PUT_LINE('RECORD IS INSERTED INTO THE TABLE');
+END;
+
+-----------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
