@@ -1,0 +1,115 @@
+1.Create a PL/SQL function that takes an email address as input (a VARCHAR2) and 
+returns a Boolean-like value (1 for TRUE, 0 for FALSE) indicating whether the email address has a basic valid format. 
+The validation should check for the presence of an "@" symbol and at least one "." after the "@" symbol.
+
+A. 
+create or replace function is_valid_email(p_email IN VARCHAR2) return number 
+as
+v_at_position NUMBER;
+    v_dot_position NUMBER;
+begin 
+ v_at_position := INSTR(p_email, '@');
+
+    -- Check if "@" exists and is not the first or last character
+    IF v_at_position > 1 AND v_at_position < LENGTH(p_email) THEN
+        -- Find the position of the first "." after the "@" symbol
+        v_dot_position := INSTR(p_email, '.', v_at_position + 1);
+
+        -- Check if "." exists after "@"
+        IF v_dot_position > v_at_position + 1 THEN
+            RETURN 1; -- TRUE
+        END IF;
+    END IF;
+
+    RETURN 0;
+end;
+
+
+2.Assume you have a table named employees with a column hire_date (DATE). 
+Create a PL/SQL function that takes an employee_id as input and returns the number of full years the employee has been working (based on the hire_date and the current date).
+A.
+	 create or replace function years_between(emp_id number) return number as
+ v_b number;
+ v_date date;
+ begin
+    select hire_date into v_date from employees where employee_id = emp_id;
+    v_b := to_char(sysdate,'YYYY') - to_char(v_date,'YYYY');
+    return v_b;
+ end;
+ 
+ select first_name,job_id,hire_date,years_between(employee_id) from employees;
+
+
+3.Create a PL/SQL function that takes two input strings (p_string1, p_string2 of type VARCHAR2) and 
+an optional separator string (p_separator of type VARCHAR2 with a default value of a single space). 
+The function should return a single string that is the concatenation of p_string1, the p_separator, and p_string2
+
+
+
+4.Create a PL/SQL function that takes a department_id (NUMBER) and an integer n (NUMBER) as input. 
+The function should return the Nth highest salary within that department from an employees table (assuming it has employee_id, salary, and department_id columns). 
+If the department has fewer than N employees, you can decide to return NULL or a specific value (like 0).
+
+	
+	create or replace function nth_high_sal(dept_id number,x number) return number as
+v_salary number;
+begin 
+    SELECT salary
+  INTO v_salary
+  FROM (
+    SELECT
+      salary,
+      DENSE_RANK() OVER (ORDER BY salary DESC) as rnk
+    FROM employees
+    WHERE department_id = dept_id
+  )
+  WHERE rnk = x;
+            
+    return v_salary;
+end;
+
+
+5.Create a PL/SQL function that takes two DATE inputs (p_date1, p_date2) and 
+returns the number of full days between them as an INTEGER. Ensure the result is always non-negative (return the absolute difference).
+
+
+CREATE OR REPLACE FUNCTION diff_dates (date1 DATE, date2 DATE)
+RETURN NUMBER
+AS
+    v_diff NUMBER;
+BEGIN
+    IF date1 > date2 THEN
+        v_diff := date1 - date2;
+    ELSIF date1 < date2 THEN
+        v_diff := date2 - date1;
+    ELSE -- Handle the case where date1 and date2 are equal
+        v_diff := 0;
+    END IF;
+    RETURN v_diff;
+END;
+/
+
+DECLARE
+BEGIN
+    -- It's safer to use TO_DATE with a specific format mask
+    DBMS_OUTPUT.PUT_LINE(diff_dates(TO_DATE('11-MAY-2025', 'DD-MM-YYYY'), TO_DATE('11-MAY-2025', 'DD-MM-YYYY')));
+END;
+/
+
+
+
+6.Create a PL/SQL function that takes a DATE input (p_date) and returns a DATE value representing the first day of the month for the given date.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

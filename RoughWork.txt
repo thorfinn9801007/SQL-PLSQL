@@ -1,0 +1,118 @@
+select 
+	id,
+	name,
+	monthly_budget,
+	sum(monthly_budget) over(
+	order by monthly_budget) as acc_budget
+from employees;
+
+
+with cte as (
+select 
+	id,
+	name,
+	department_id,
+	hire_date
+from employees;
+)
+
+select id,name,department_id,hire_date
+	row_number() over( parition on count(*) order by department_id )
+from cte;
+
+
+
+select salary,listagg(name,' ') within group (order by salary)
+from employees
+group by salary
+
+
+with cte as (
+	SELECT  ID,name,MAX(salary) AS max_salary, department_id
+	FROM hr.EMPLOYEES
+	GROUP BY department_id
+	order by department_id
+);
+
+SELECT employee_id
+FROM hr.EMPLOYEES
+WHERE salary IN (
+    SELECT MAX(salary)
+    FROM hr.EMPLOYEES
+    WHERE salary < (SELECT MAX(salary) FROM hr.EMPLOYEES)
+    GROUP BY department_id
+);
+	
+
+select d.dept_name,
+	count(*) as emps
+	sum(e.salary) as salaries
+from employee e join department d on
+e.dept_id = d.dept_id
+group by dept_id;
+
+
+
+select
+	e.emp_id,
+	e.first_name,
+	e.last_name,
+	e.job_id,
+	m.first_name,
+	m.last_name,
+	m.job_id
+from employees e 
+start with manager_id is NULL
+connect by e.manager_id = manager_id
+order by e.emp_id;
+
+select e.emp_id
+	e,first_name,
+	e.last_name,
+	e.manager_id,
+	LEVEL
+from employees e 
+where LEVEL > 2
+start with manager_id 
+connect by e.manager_id = manager_id
+order by LEVEL desc;
+
+
+select e.emp_id
+	e,first_name,
+	e.last_name,
+	sys_connect_by_path(e.emp_id,'/') as PATH
+from employees e ;
+
+
+merge into users_corrections uc 
+using users_table ut 
+on uc.id = ut.id
+when matched then
+	update uc set 
+	uc.active = ut.active,
+	uc.creation_date = ut.creation_date
+where uc.creation_date >= to_date('2010-01-01','YYYY-MM-DD')
+when not matched then 
+	insert (
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

@@ -1,0 +1,39 @@
+Basic SELECT and WHERE Clause:
+
+Write a query to retrieve the first name, last name, and salary of all employees.
+Write a query to retrieve the first name, last name, and salary of employees who earn more than 6000.
+Write a query to retrieve the first name, last name, and department ID of employees who belong to department ID 90.
+Write a query to retrieve the first name, last name, and hire date of employees who were hired in the year 2005.
+Write a query to retrieve the first name, last name, and job ID of employees whose job ID is 'IT_PROG'.
+
+ORDER BY Clause:
+
+Write a query to retrieve the first name, last name, and salary of all employees, ordered by salary in descending order.
+Write a query to retrieve the first name, last name, and hire date of all employees, ordered by hire date from the earliest to the latest.
+Write a query to retrieve the first name, last name, and department ID of employees, ordered by department ID and then by last name in ascending order.
+Aggregate Functions:
+
+Write a query to find the average salary of all employees.
+Write a query to find the maximum and minimum salary among all employees.
+Write a query to count the total number of employees in the employees table.
+Write a query to find the number of employees in each department.
+GROUP BY and HAVING Clause:
+
+Write a query to find the average salary for each department. Display the department ID and the average salary.
+Write a query to find the number of employees for each job title. Display the job title and the count.
+Write a query to find the departments where the average salary is greater than 8000.
+JOIN Clauses:
+
+Write a query to retrieve the first name, last name of employees along with the name of their department.
+Write a query to retrieve the first name, last name of employees, their department name, and the city where their department is located.
+Write a query to retrieve the first name, last name of employees and the job title they hold.
+Write a query to find the employees who report to a manager. Display the employee's first name, last name, and their manager's first name and last name. (Hint: This involves a self-join on the employees table).
+Subqueries:
+
+Write a query to find the employees whose salary is greater than the average salary of all employees.
+Write a query to find the employees who work in the 'Sales' department. (Hint: You'll need to select the department ID from the departments table).
+Write a query to find the employee who earns the maximum salary.
+More Complex Queries:
+
+Write a query to find the second highest salary among all employees.
+Write a query to list all departments along with the number of employees in each department. If a department has no employees, it should still be listed with a count of 0.   

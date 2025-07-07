@@ -1,0 +1,63 @@
+CREATE OR REPLACE PROCEDURE AMD3PRO15 AS 
+cursor c_mgr is select employee_id, first_name, job_id, department_id 
+                    from employees where employee_id in (select distinct manager_id from employees );
+r_mgr c_mgr%rowtype;
+v_row number:=0;
+BEGIN
+  open c_mgr;
+    loop
+        fetch c_mgr into r_mgr;
+        exit when c_mgr%notfound;
+            --if not(substr(r_mgr.job_id,3) in  ('PRES','VP')) then
+            if r_mgr.job_id not like '%PRES' and r_mgr.job_id not like '%VP'  then
+                insert into empmgr values (r_mgr.employee_id,r_mgr.first_name,r_mgr.job_id,r_mgr.department_id);
+                v_row:=v_row+1;
+            end if;
+    end loop;  
+    --v_row:=c_mgr%rowcount;
+    dbms_output.put_line('Number record inserted is '||v_row);
+  close c_mgr;
+  dbms_output.put_line('Procedure complete the task....');
+END AMD3PRO15;
+
+
+--------------------------
+CREATE OR REPLACE PROCEDURE ADM3PRO16 (  V_DEPT_ID IN NUMBER , V_PER IN NUMBER ) AS 
+v_row number;
+BEGIN
+    update emp25 set salary= salary*v_per+salary where deptid=v_dept_id;
+    
+    if sql%found then
+        v_row:=sql%rowcount;
+        dbms_output.put_line('Number of record update for departmant_id '||v_dept_id ||' is '||v_row);
+    elsif sql%notfound then
+        dbms_output.put_line('No such '||v_dept_id||' department_id ');
+    end if;    
+    
+END ADM3PRO16;
+	
+-----------------------------
+CREATE OR REPLACE PROCEDURE ADM3PRO17 AS 
+cursor c_mgr is select employee_id, first_name, job_id, department_id 
+                    from employees where employee_id in (select distinct manager_id from employees );
+r_mgr c_mgr%rowtype;
+v_row number:=0;
+BEGIN
+  
+    for r_mgr in c_mgr loop
+            if r_mgr.job_id not like '%PRES' and r_mgr.job_id not like '%VP'  then
+                insert into empmgr values (r_mgr.employee_id,r_mgr.first_name,r_mgr.job_id,r_mgr.department_id);
+                v_row:=v_row+1;
+            end if;
+    end loop;
+  dbms_output.put_line('Procedure complete the task....');
+END ADM3PRO17;
+
+---------------------------------------
+CREATE OR REPLACE FUNCTION EMPEXP (  V_DOJ IN DATE ) RETURN VARCHAR2 AS 
+v_empexp varchar2(20);
+BEGIN
+ v_empexp:= concat(round((sysdate-v_doj)/365,0),' yrs');
+ return v_empexp;
+END EMPEXP;
+--------------------------

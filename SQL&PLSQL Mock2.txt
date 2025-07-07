@@ -1,0 +1,164 @@
+1) Create a PL/SQL procedure to perform the following actions:
+Update Manager:Update the manager in the Employees table to reflect their new role as senior manager, if manager id is listed in departments Table.
+Update Job ID: Update manager's  job_id in the employees table by prefixing it with "Sr." to indicate the senior manager position.
+
+System Requirement : Use the Basic loop with cursor to handle the departments tables records.
+
+ANSWER::=>
+
+CREATE OR REPLACE PROCEDURE MOCK2 as 
+cursor c is select department_id,manager_id from departments; 
+c_emp c%rowtype;
+v_jobid varchar2(50);
+begin
+    open c;
+        loop
+            fetch c into c_emp;
+            exit when c%notfound;
+            update emps27 set job_id = 'Sr. '|| job_id where department_id = c_emp.department_id and  manager_id = c_emp.manager_id; 
+        end loop;
+    close c;
+    
+    dbms_output.put_line('Manager role of senior converting is success');
+end;
+/
+
+set serveroutput on;
+
+execute MOCK2;
+
+
+2) Write the procedure that get department_id, percentage of increment as parameter and perform of salary update to the particular department
+and print the number of record update for deparmant_name
+System Requirement :
+	Procedure name as SALUPDATE(V_dept as number, v_increment as number)
+	If department_id is not found handle the error by "Sorry...NO SUCH DEPARTMENT ID FOUND". If any miss match error handle error and handle other error by display "Error Occured..."
+	
+Output: 
+	Number of Record update in Human Resources department is 5
+
+ANSWER::=>
+
+CREATE OR REPLACE PROCEDURE MOCK1
+(
+    V_DEPT IN NUMBER,
+    V_INC IN NUMBER
+) AS
+    CURSOR c IS
+        SELECT e.employee_id
+        FROM emps27 e
+        JOIN departments d ON e.department_id = d.department_id
+        WHERE e.department_id = V_DEPT;
+    r_rec c%ROWTYPE;
+    v_rowcount NUMBER := 0;
+BEGIN
+    OPEN c;
+    LOOP
+        FETCH c INTO r_rec; -- Fetch into the cursor's rowtype
+        EXIT WHEN c%NOTFOUND;
+        UPDATE emps27
+        SET salary = r_rec.salary + (r_rec.salary * (V_INC / 100))
+        WHERE employee_id = r_rec.employee_id;
+        v_rowcount := v_rowcount + 1;
+    END LOOP;
+    
+    CLOSE c;
+    SELECT department_name
+    INTO r_rec.department_name 
+    FROM departments
+    WHERE department_id = V_DEPT;
+
+    dbms_output.put_line('Number of Records updated in ' || r_rec.department_name || ' department is ' || v_rowcount);
+    EXCEPTION
+        when no_data_found then 
+            dbms_output.put_line('Sorry...NO SUCH DEPARTMENT ID FOUND');
+        WHEN  others then 
+            dbms_output.put_line('Error occured');
+END MOCK1;
+/
+
+
+set serveroutput on;
+execute MOCK1(1020,20);
+
+3) Create a PL/SQL function to perform the following actions:
+
+	Calculate Average Salary: Return the average salary of a specified department including the commission_pct .
+	Return Type: Ensure the function returns the average salary as an integer value.
+
+
+ANSWER::=>
+
+CREATE OR REPLACE FUNCTION AVG_SAL 
+(
+  DEPT_ID IN NUMBER 
+) RETURN NUMBER AS 
+
+v_avgsal number;
+BEGIN
+    select avg(salary + (nvl(salary*commission_pct,0))) into v_avgsal from emps27 where department_id = DEPT_ID group by DEPT_ID;
+    
+  RETURN round(v_avgsal,0);
+END AVG_SAL;
+
+*********************************************************SQL Query********************************************************************
+
+1) Write an SQL query to display the following details for employees: employee_id, first_name, job_id, and bonus. The bonus should be determined based on the employee's experience in months as follows:
+	If the employee's experience is more than 250 months, display "25% Bonus".
+	If the employee's experience is between 230 and 250 months, display "22% Bonus".
+	If the employee's experience is between 200 and 229 months, display "20% Bonus".
+	If the employee's experience is less than 200 months, display "15% Bonus".
+
+
+ANSWER::=>
+
+SELECT
+    employee_id,
+    first_name,
+    job_id,
+    hire_date,
+    CASE
+        WHEN months_between(sysdate,hire_date) > 250 THEN '25% Bonus'
+        WHEN months_between(sysdate,hire_date) BETWEEN 230 AND 250 THEN '22% Bonus'
+        WHEN months_between(sysdate,hire_date) BETWEEN 200 AND 229 THEN '22% Bonus'
+        WHEN months_between(sysdate,hire_date) < 200 THEN '15% Bonus'
+    END AS bonus
+FROM
+    emps27;
+
+
+2) Write an SQL query to display the following details for employees: employee_id, first_name, date_of_joining (formatted as 'Dayname date Month year', e.g., 'Tuesday 17 June 2003'), and a greeting message titled Greet_MSG with the text "HAPPY WORK ANNIVERSARY". Only include employees whose date of joining falls within the current month.
+
+ANSWER::=>
+
+
+select employee_id, first_name,
+(TO_CHAR(hire_date,'Day') ||' ' || extract (day from hire_date) ||' '|| TO_CHAR(hire_date,'Month') ||' '|| extract (year from hire_date) ) 
+as date_of_joining
+from emps27;
+
+
+3) Write an SQL query to display the following details for employees with the job_id 'IT_PROG' who are assigned to an onsite project:
+	Project Details for IT Programmers:
+		Start Date: 24-02-2025
+		Duration: 30 days
+	Project Details for IT Manager:
+		Start Date: 21-02-2025
+		Duration: 35 days
+Display the following columns: employee_id, first_name, start_date, and end_date of the project.
+
+
+ANSWER::=>
+
+SELECT
+    employee_id,
+    first_name,job_id,
+    TO_DATE('25-02-24', 'DD-MM-YY') AS start_date,
+    TO_DATE('25-02-24', 'DD-MM-YY') + 30 AS end_date
+FROM
+    employees
+WHERE
+    job_id = 'IT_PROG';
+
+--------------------------------------------------------------------------------------------------------------------
+

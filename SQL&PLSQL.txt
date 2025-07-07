@@ -1,0 +1,144 @@
+SQL 1 ) Display the employees, with employeeid, firstname, job_id, salary and hike_salary, where 
+hike_salary is 20% hike from there salary and display only emp who get salary >10000 after salary hiked
+1A)
+
+select employee_id,first_name,salary , salary+salary*0.2 as hike_salary from emps26
+where salary+salary*0.2 > 10000;
+
+
+SQL 2) Display the employee_id, first_name, department_name, job_id and city. Only from department_id of 30,50,70,90 and sort based on firstname of employee 
+2A) select e.employee_id,e.first_name,d.department_name,d.department_id,e.job_id,l.city from 
+employees e 
+    join departments d on e.department_id = d.department_id
+    join locations l on l.location_id= d.location_id
+    where e.department_id in (30,50,50,90)
+    order by e.first_name;
+
+
+
+SQL 3) Display the all departments with department_name and number of employees from each department 
+      as 'NO_Emp'. Irrespective of  department have employee or not. sort based on no_emp as descending order. 
+3A)
+	SELECT
+    d.department_name,
+    COUNT(e.employee_id) AS NO_Emp
+FROM
+    departments d
+LEFT JOIN
+    employees e ON d.department_id = e.department_id
+GROUP BY
+    d.department_name
+ORDER BY
+    NO_Emp DESC;
+
+
+SQL 4) Display the jobid and number of employees as No_Emps. display only  the jobId which has maximum no_emps number employees  sort
+record based on job_id 
+
+4A)
+	with cte as (
+select job_id,count(employee_id) as no_emp 
+from employees group by job_id
+order by no_emp desc
+)
+
+select job_id from cte where no_emp = (select max(no_emp) from cte);
+   
+
+SQL 5) write sql query to display the employee_id, first_name, job_id and salary , who is working in the department name of "IT"
+5A)
+	
+	select employee_id, first_name, job_id ,salary from employees 
+	where department_id in (select department_id from departments where department_name = 'IT');
+
+(HR Schema)
+PLSQL 1.Write procedure to display the number of department to the location_id as 'Number of Department in location id[50] is [25]' by pass the argument to procedure as location_id with named as deptcount(loc number).
+1A)
+	create or replace procedure dept_loc(loc_id in number ) as
+dept_count number;
+begin
+    select count(department_id) into dept_count from departments 
+    where location_id = loc_id;
+    dbms_output.put_line('Number of Department in location id [ '|| loc_id ||']' ||'is ['||dept_count||']');
+end;
+/
+
+
+set serveroutput on;
+   
+execute dept_loc(1700);
+
+
+PLSQL 2.Write the procedure to copy the manager record from employees table and move records to managers table. Procedure is named with mgremp and display the "Number of record is copied is" if not then "No record insert into manager" using the basic loop with cursor.
+2A)
+
+	create or replace procedure mgrnemp as
+cursor c is select employee_id,first_name,job_id,department_id from employees where employee_id in (select manager_id from employees);
+r_rec c%rowtype;
+row_count number:=0;
+begin
+open c;
+loop
+    fetch c into r_rec;
+    exit when c%notfound;
+        insert into manageremps values (r_rec.employee_id,r_rec.first_name,r_rec.job_id,r_rec.department_id);
+        row_count := row_count+1;
+end loop;
+    close c;
+    dbms_output.put_line('Number of record is copied is'||row_count);
+end;
+/
+
+
+execute mgrnemp;
+
+
+PLSQL 3.Write a function to calculate the total salary by salary commission and  deduction of professional tax of 6% from total salary if total salary is greater than or equal to $15000 and less than 15000 is 2.5%. function named as salcal with two parameter of salary and commission.
+3A)
+
+	create or replace function salcals (sal number,comm number) return number as 
+v_sal number:=sal;
+v_comm number:=comm;
+v_taxrate number;
+v_totsal number;
+
+begin 
+    
+    v_totsal := v_sal + nvl(v_sal*v_comm,0);
+    if v_totsal > 150000 then
+        v_taxrate :=0.6;
+    elsif v_totsal < 150000 then
+        v_taxrate :=0.25;
+    end if;
+    
+    v_totsal := v_totsal - v_totsal*v_taxrate;
+    
+return v_totsal;
+end;
+
+
+select employee_id,first_name,salcals(salary,commission_pct) as TOT_SAL from employees;
+   
+   
+
+
+PLSQL 4.Write trigger on emp table for the event of update to column of salary. when the salary is update to emp table stored old salary into empoldsal table. Display 'Record is inserted into empoldsal'.
+
+4A)
+
+    
+select * from emps26;
+select * from empoldsal;
+
+create or replace trigger oldsal 
+before update on emps26 for each row 
+declare
+begin
+    insert into empoldsal values(:old.employee_id,:old.first_name,:old.salary);
+end;
+
+
+update emps26 set salary = salary+1 where employee_id = 204;
+
+
+

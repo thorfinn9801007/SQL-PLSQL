@@ -1,0 +1,146 @@
+2348146 -- PrabuRam sir
+Task -1 
+     -- Create a job grade sal and complete the hands on query
+	
+	CREATE TABLE JOB_GRADE (
+
+    MIN_SALARY NUMBER,
+
+    MAX_SALARY NUMBER,
+
+    JOB_GRADE VARCHAR(5)
+
+);
+ 
+
+INSERT INTO HR.JOB_GRADE(MIN_SALARY,MAX_SALARY,JOB_GRADE) VALUES( 2501,5000,'D');
+
+INSERT INTO HR.JOB_GRADE(MIN_SALARY,MAX_SALARY,JOB_GRADE) VALUES ( 5001,7500,'C');
+
+INSERT INTO HR.JOB_GRADE(MIN_SALARY,MAX_SALARY,JOB_GRADE) VALUES( 7501,9000,'B');
+
+INSERT INTO HR.JOB_GRADE(MIN_SALARY,MAX_SALARY,JOB_GRADE) VALUES( 9001,12500,'A'); 
+INSERT INTO HR.JOB_GRADE(MIN_SALARY,MAX_SALARY,JOB_GRADE) VALUES( 12501,2500,'A+');
+
+SELECT * FROM job_grade;
+ 
+ 
+SELECT
+
+       E.EMPLOYEE_ID,E.FIRST_NAME, E.LAST_NAME, E.SALARY , J.JOB_GRADE 
+
+FROM
+
+       EMPLOYEES E
+
+JOIN
+
+       JOB_GRADE J
+
+ON
+
+       (E.SALARY BETWEEN J.MIN_SALARY AND J.MAX_SALARY)
+
+ORDER BY
+
+       E.SALARY DESC;
+ 
+
+
+Task -2 
+     -- create a scenario of non equi join without between operator 
+
+	non-equi join 
+		-- used to find relation ships bertween dara that are not based
+	   	Qon exact matches. useful for scenarios involving ranges,overlaps,comparisons
+	
+realworld cases
+
+Applying Discounts Based on Order Amount: In an e-commerce system, you might have an Orders table with OrderAmount and a Discounts table with MinAmount, MaxAmount, and DiscountRate. A non-equi join using BETWEEN can apply the appropriate discount to each order.   
+
+	SELECT o.OrderID, o.OrderAmount, d.DiscountRate
+	FROM Orders o
+	JOIN Discounts d ON o.OrderAmount > d.MinAmount and o.OrderAmount < d.MaxAmount;
+
+Identifying Employees Within Specific Age Groups: If you have an Employees table with Age and an AgeGroups table with MinAge and MaxAge, a non-equi join can categorize employees into different age groups.
+
+	SELECT e.EmployeeName, e.Age, ag.GroupName
+	FROM Employees e
+	JOIN AgeGroups ag ON e.Age >= ag.MinAge AND e.Age <= ag.MaxAge;
+
+
+Task -3
+     -- create a scenario of cross join 
+	cross join 
+		-- also known as cartesian product, a type of join that combines each row from the first tab;e with every row from the second table.
+		-- it doesnot require any condition based on related columns.
+		-- All Combinations: Every possible combination of rows from the two tables is included in the result set.
+	
+	Scenario: You have a list of products and a list of colors. You need to generate all possible combinations of products and colors for testing variations or creating a master list of potential product offerings.
+
+Tables:
+
+SQL
+
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY,
+    ProductName VARCHAR(50)
+);
+
+INSERT INTO Products (ProductID, ProductName) VALUES
+(1, 'T-Shirt'),
+(2, 'Mug');
+
+CREATE TABLE Colors (
+    ColorID INT PRIMARY KEY,
+    ColorName VARCHAR(20)
+);
+
+INSERT INTO Colors (ColorID, ColorName) VALUES
+(10, 'Red'),
+(20, 'Blue'),
+(30, 'Green');
+Cross Join Query:
+
+SQL
+
+SELECT p.ProductName, c.ColorName
+FROM Products p
+CROSS JOIN Colors c;
+Result:
+
+ProductName | ColorName
+------------|-----------
+T-Shirt     | Red
+T-Shirt     | Blue
+T-Shirt     | Green
+Mug         | Red
+Mug         | Blue
+Mug         | Green
+
+
+
+Task -4 
+     -- Datatypes of PL/SQL
+
+SQL> declare
+  2  begin
+  3  dbms_output.put_line('hello');
+  4  end;
+  5  /
+
+PL/SQL procedure successfully completed.
+
+SQL> set serveroutput on;
+SQL> declare
+  2  begin
+  3  dbms_output.put_line('Hello world');
+  4  end;
+  5  /
+Hello world
+
+PL/SQL procedure successfully completed.
+
+
+
+***PL/SQL HAS NO INPUT STATEMENT***

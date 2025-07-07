@@ -1,0 +1,121 @@
+select * from products;
+select * from tab;
+select * from employees;
+select * from inventories;
+select * from orders order by customer_id, order_date;
+select * from order_items;
+select *from customers order by credit_limit desc;
+ 
+select product_id, product_name, list_price,
+    rank() over(order by list_price desc) as Rank_Price
+    from products;
+select product_id, product_name, list_price,category_id,
+    rank() over(partition by category_id order by list_price desc) as Rank_Price
+    from products;
+
+
+
+select customer_id, name, credit_limit ,
+    rank() over( order by credit_limit desc) as Rank_credit
+from customers;
+ 
+
+with temp_tab as(   
+select product_id, product_name, list_price,
+    rank() over(order by list_price desc) as Rank_price
+    from products)
+select product_id,product_name, list_price, Rank_price
+    from temp_tab
+    where rank_price <=10;
+
+select product_id, product_name, category_id,list_price,
+    rank() over(partition by category_id order by list_price desc) as Rank_Cat
+    from products;
+
+with temp_tab as 
+    ( select product_id, product_name, category_id,list_price,
+    rank() over(partition by category_id order by list_price desc) as Rank_Cat
+    from products)
+select product_id,product_name, list_price, Rank_cat
+    from temp_tab
+    where rank_cat <=3; 
+--------Dense_Rank()-----------
+select customer_id, name, credit_limit ,
+    rank() over( order by credit_limit desc) as Rank_credit
+from customers;
+ 
+select customer_id, name, credit_limit ,
+    dense_rank() over( order by credit_limit desc) as Rank_credit
+from customers;
+
+with temp_tab as
+    ( select product_id, count(order_id) as Order_count
+      from order_items
+     group by product_id)
+  select product_id, order_count,
+      dense_rank() over(order by order_count desc) as Rank_order
+    from temp_tab;
+-------------------Sum&count with OverClause-------------
+ 
+select product_id, category_id, list_price,
+        round(avg(list_price) over(partition by category_id)) as Cat_avg_price
+    from products;
+select product_id,count(order_id)as No_Orders, sum(quantity)as Total_unit
+    from order_items
+    group by product_id
+    order by product_id asc;
+select  distinct product_id, count(order_id) over(partition by product_id) as No_Orders,
+    sum(quantity) over(partition by product_id) as Total_unit
+   from order_items
+   order by product_id asc;
+select category_id, round(avg(list_price),0) as Avg_price
+    from products
+    group by category_id;
+
+ 
+    
+-------------cumulative distribution ---------------------
+ 
+with temp_tab as(
+    select customer_id, count(order_id) as No_Orders
+        from orders
+        group by customer_id )
+    select customer_id,no_orders,
+        round(cume_dist() over(order by no_orders desc) *100,2)||'%' as Cum_dist
+    from temp_tab;
+----------------------Lag()--------------------------------
+ 
+select to_char(order_date,'YYYY')as Years, to_char(order_date,'Mon')as Month, count(order_id) as No_Orders
+    from orders
+    where to_char(order_date,'YYYY')>=2015
+    group by to_char(order_date,'YYYY'),to_char(order_date,'Mon')
+    order by to_char(order_date,'YYYY'),to_char(order_date,'Mon');
+
+ 
+select to_char(order_date,'YYYY')as Years,count(order_id) as No_Orders
+    from orders
+    where to_char(order_date,'YYYY')>=2015
+    group by to_char(order_date,'YYYY')
+    order by to_char(order_date,'YYYY');
+with temp_tab as 
+    ( select to_char(order_date,'YYYY')as Years,count(order_id) as No_Orders
+    from orders
+    where to_char(order_date,'YYYY')>=2015
+    group by to_char(order_date,'YYYY')
+    )
+select Years, No_orders, lag(No_Orders) over (order by years)
+    from temp_tab;
+
+-----------------
+    select customer_id,to_char(order_date,'YYYY') as Year, count(order_id) as No_Of_Orders
+        from orders
+        group by customer_id,to_char(order_date,'YYYY')
+        order by customer_id;
+    with temp_tab as
+        ( select customer_id,to_char(order_date,'YYYY') as Year, count(order_id) as No_Of_Orders
+        from orders
+        group by customer_id,to_char(order_date,'YYYY')
+        )
+    select customer_id,year, 
+        lag(no_of_orders)over(partition by customer_id order by customer_id) as Lag_year, no_of_orders
+    from temp_tab;
